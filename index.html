@@ -64,6 +64,9 @@
 
     #result {
       margin-top: 20px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     /* Form Styling */
@@ -94,11 +97,13 @@
     .result-table-wrapper {
       margin-top: 20px;
       overflow-x: auto;
+      max-width: 100%;
     }
 
     .result-table {
       width: 100%;
       border-collapse: collapse;
+      table-layout: fixed;
     }
 
     .result-table th,
@@ -106,6 +111,9 @@
       padding: 10px 12px;
       text-align: left;
       border: 1px solid #ddd;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .result-table th {
@@ -116,6 +124,11 @@
     .result-table th.Antalya {
       background-color: darkred;
       color: white;
+    }
+
+    .result-table td:nth-child(5) {
+      white-space: normal;
+      word-wrap: break-word;
     }
 
     /* Button Styling */
@@ -135,106 +148,16 @@
     }
   </style>
   <script>
-   function copyTable() {
-    var table = document.getElementById("result-table");
-    var range = document.createRange();
-    range.selectNode(table);
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
-    document.execCommand("copy");
-    window.getSelection().removeAllRanges();
-    alert("Tablo kopyalandı!");
-
-    // Tabloyu temizle ve gizle
-    document.getElementById("result-table").getElementsByTagName("tbody")[0].innerHTML = "";
-    document.getElementById('result').style.display = 'none';
-  }
-
-  function checkSystem(value) {
-    var siparisLabel = document.getElementById("siparis-label");
-    if (value === "Genişbant") {
-      siparisLabel.textContent = "Sipariş Numarası Girin:";
-    } else {
-      siparisLabel.textContent = "Hizmet Numarası Girin:";
-    }
-  }
-  </script>
-</head>
-<body>
-  <div class="container">
-    <h2>Sorun Bildirim Tablo Ureticisi by ALPAR</h2>
-    <form onsubmit="event.preventDefault(); createTable(); document.getElementById('result').style.display = 'block';">
-      <div class="form-group">
-        <label for="bölge">Bağlı Bulunduğunuz Bölge:</label>
-        <select id="bölge" name="bölge">
-          <option value="">-- Seçiniz --</option>
-          <option value="Adana Bölge">Adana Bölge</option>
-          <option value="Diyarbakır Bölge">Diyarbakır Bölge</option>
-          <option value="Antalya Bölge">Antalya Bölge</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="sistem">Sorun Yaşadığınız Sistem:</label>
-        <select id="sistem" name="sistem" onchange="checkSystem(this.value)">
-          <option value="">-- Seçiniz --</option>
-          <option value="Genişbant">MTS</option>
-          <option value="Mobil/Magnet">Mobil/Magnet</option>
-          <option value="xDSL">xDSL</option>
-          <option value="IYS">IYS</option>
-          <option value="TELAURA/PCOM">TELAURA/PCOM</option>
-          <option value="MARS">MARS</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label id="siparis-label" for="siparisno">Hizmet Numarası Girin:</label>
-        <input type="text" id="siparisno" name="siparisno" placeholder="Sipariş numaranızı girin">
-      </div>
-
-      <div class="form-group">
-        <label for="cagrinumarasi">Çağrı Numarası Girin:</label>
-        <input type="text" id="cagrinumarasi" name="cagrinumarasi" placeholder="Çağrı numaranızı girin">
-      </div>
-
-      <div class="form-group">
-        <label for="mesaj">Mesajınız:</label>
-        <textarea id="mesaj" name="mesaj" rows="4" placeholder="Mesajınızı buraya yazın" required></textarea>
-      </div>
-
-      <div>
-        <input type="submit" value="Gönder">
-      </div>
-    </form>
-
-    <div id="result" style="display: none;">
-      <h2>Form Bilgileri</h2>
-      <div class="result-table-wrapper">
-        <table id="result-table" class="result-table">
-          <thead>
-            <tr>
-              <th>Sipariş/Hizmet Numarası</th>
-              <th>Bağlı Bulunduğunuz Bölge</th>
-              <th>Sorun Yaşadığınız Sistem</th>
-              <th>Çağrı Numarası</th>
-              <th>Mesaj</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <button class="copy-button" onclick="copyTable()">Tabloyu Kopyala</button>
-    </div>
-  </div>
-
-  <script>
     function createTable() {
       var bölge = document.getElementById("bölge").value;
       var sistem = document.getElementById("sistem").value;
       var siparisno = document.getElementById("siparisno").value;
       var cagrinumarasi = document.getElementById("cagrinumarasi").value;
       var mesaj = document.getElementById("mesaj").value;
+
       var table = document.getElementById("result-table").getElementsByTagName("tbody")[0];
+      table.innerHTML = ""; // Tabloyu temizle
+
       var row = table.insertRow();
       var cell1 = row.insertCell();
       var cell2 = row.insertCell();
@@ -262,13 +185,115 @@
           headerCells[i].style.backgroundColor = "darkorange";
         }
       }
+      
+      // Tablo görünür hale getir
+      document.getElementById('result').style.display = 'block';
+      // Formu gizle
+      document.getElementById('form-container').style.display = 'none';
+    }
 
-      document.getElementById("bölge").value = "";
-      document.getElementById("sistem").value = "";
-      document.getElementById("siparisno").value = "";
-      document.getElementById("cagrinumarasi").value = "";
-      document.getElementById("mesaj").value = "";
+    function copyTable() {
+      var table = document.getElementById("result-table");
+      var range = document.createRange();
+      range.selectNode(table);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+      document.execCommand("copy");
+      window.getSelection().removeAllRanges();
+      alert("Tablo kopyalandı! Alpar Kullandıgınız için teşekkür ediyor");
+
+      // Formu temizle
+      document.getElementById("form").reset();
+      // Formu göster
+      document.getElementById('form-container').style.display = 'block';
+      // Tabloyu gizle
+      document.getElementById('result').style.display = 'none';
+    }
+    
+    function checkSystem(value) {
+      var siparisLabel = document.getElementById("siparis-label");
+      var submitButton = document.getElementById("submit-button");
+
+      if (value === "Genişbant") {
+        siparisLabel.textContent = "Sipariş Numarası Girin:";
+      } else if (value === "Mobil/Magnet") {
+        siparisLabel.textContent = "Hizmet Numarası Girin:";
+        submitButton.disabled = true;
+        alert("Mobil ve Magnet için destek sağlayamıyoruz.");
+      } else {
+        siparisLabel.textContent = "Hizmet Numarası Girin:";
+        submitButton.disabled = false;
+      }
     }
   </script>
+</head>
+<body>
+  <div class="container">
+    <h2>Sorun Bildirim Tablo Üreticisi by ALPAR</h2>
+    <div id="form-container">
+      <form id="form" onsubmit="event.preventDefault(); createTable(); document.getElementById('result').style.display = 'block';">
+        <div class="form-group">
+          <label for="bölge">Bağlı Bulunduğunuz Bölge:</label>
+          <select id="bölge" name="bölge">
+            <option value="">-- Seçiniz --</option>
+            <option value="Adana Bölge">Adana Bölge</option>
+            <option value="Diyarbakır Bölge">Diyarbakır Bölge</option>
+            <option value="Antalya Bölge">Antalya Bölge</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="sistem">Sorun Yaşadığınız Sistem:</label>
+          <select id="sistem" name="sistem" onchange="checkSystem(this.value)">
+            <option value="">-- Seçiniz --</option>
+            <option value="Genişbant">MTS</option>
+            <option value="Mobil/Magnet">Mobil/Magnet</option>
+            <option value="xDSL">xDSL</option>
+            <option value="IYS">IYS</option>
+            <option value="TELAURA/PCOM">TELAURA/PCOM</option>
+            <option value="MARS">MARS</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label id="siparis-label" for="siparisno">Hizmet Numarası Girin:</label>
+          <input type="text" id="siparisno" name="siparisno" placeholder="Sipariş numaranızı girin">
+        </div>
+
+        <div class="form-group">
+          <label for="cagrinumarasi">Çağrı Numarası Girin:</label>
+          <input type="text" id="cagrinumarasi" name="cagrinumarasi" placeholder="Çağrı numaranızı girin">
+        </div>
+
+        <div class="form-group">
+          <label for="mesaj">Mesajınız:</label>
+          <textarea id="mesaj" name="mesaj" rows="4" placeholder="Mesajınızı buraya yazın" required></textarea>
+        </div>
+
+        <div>
+          <input type="submit" id="submit-button" value="Gönder">
+        </div>
+      </form>
+    </div>
+
+    <div id="result" style="display: none;">
+      <h2>Form Bilgileri</h2>
+      <div class="result-table-wrapper">
+        <table id="result-table" class="result-table">
+          <thead>
+            <tr>
+              <th>Sipariş/Hizmet Numarası</th>
+              <th>Bağlı Bulunduğunuz Bölge</th>
+              <th>Sorun Yaşadığınız Sistem</th>
+              <th>Çağrı Numarası</th>
+              <th>Mesaj</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <button class="copy-button" onclick="copyTable()">Tabloyu Kopyala</button>
+    </div>
+  </div>
 </body>
 </html>
